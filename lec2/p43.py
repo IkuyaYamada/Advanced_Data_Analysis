@@ -34,7 +34,7 @@ k = calc_design_matrix(x, x, h)
 l = 0.3
 theta = np.linalg.solve(
     k.T.dot(k) + l * np.identity(len(k)), 
-    k.T.dot(y[:, None]))
+    k.T.dot(y[:, None]))pltplt
 
 # create data to visualize the prediction
 X = np.linspace(start=xmin, stop=xmax, num=5000)
