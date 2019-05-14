@@ -41,12 +41,13 @@ while len(id_all) >= num_train:
 # いくつか描写してみる
 true_x = np.linspace(start=0, stop=5, num=100)
 true_y = np.sin(np.pi*true_x)/np.pi + 0.01*true_x**3
-fig = plt.figure(figsize=(5,10),dpi=200)
+fig = plt.figure(figsize=(6,12))
 plt.subplot(5, 2, 1); x = test_data[0]; y = test_data[1];plt.scatter(x, y, c="green", s = 1);plt.plot(true_x, true_y)
 plt.subplot(5, 2, 2); x = train_data[0][0]; y = train_data[0][1];plt.scatter(x, y, c="blue", s = 1);plt.plot(true_x, true_y)
 plt.subplot(5, 2, 3); x = train_data[1][0]; y = train_data[1][1];plt.scatter(x, y, c="red", s = 1);plt.plot(true_x, true_y)
 plt.subplot(5, 2, 4); x = train_data[2][0]; y = train_data[2][1];plt.scatter(x, y, c="yellow", s = 1);plt.plot(true_x, true_y)
 plt.show()
+plt.close()
 
 # kernel matrix
 def calc_karnel_matrix(a, c, h):
@@ -90,6 +91,7 @@ for i in candidates:
 
 x = train_data[0][0]
 y = train_data[0][1]
+
 fig = plt.figure(figsize=(12,12))
 for i in range(9):
     plt.subplot(3,3,i+1);
