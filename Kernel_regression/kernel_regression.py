@@ -1,5 +1,4 @@
 # coding: utf-8
-# 先端データ解析論第二回宿題①
 
 from statistics import mean
 from sklearn import model_selection
@@ -39,6 +38,7 @@ while len(id_all) >= num_train:
     id_all = id_all[num_train:num_all]
 
 # いくつか描写してみる
+"""
 true_x = np.linspace(start=0, stop=5, num=100)
 true_y = np.sin(np.pi*true_x)/np.pi + 0.01*true_x**3
 fig = plt.figure(figsize=(6,12))
@@ -48,23 +48,23 @@ plt.subplot(5, 2, 3); x = train_data[1][0]; y = train_data[1][1];plt.scatter(x, 
 plt.subplot(5, 2, 4); x = train_data[2][0]; y = train_data[2][1];plt.scatter(x, y, c="yellow", s = 1);plt.plot(true_x, true_y)
 plt.show()
 plt.close()
+"""
 
 # kernel matrix
-def calc_karnel_matrix(a, c, h):
-    karnel_matrix = np.exp(-(x[None]-c[:, None])**2 / (2 * (h **2)))
-    return karnel_matrix
+def calc_kernel_matrix(x, c, h):
+    kernel_matrix = np.exp(-(x[None]-c[:, None])**2 / (2 * (h **2)))
+    return kernel_matrix
 
 # calculate design matrix
 # solve the least square with l2 and #make prediction
-def solve_and_prediction(x, y, h, l):
-    k = calc_karnel_matrix(a=x, c=x, h=h)
+def solve_and_prediction(x, y, X, h, l):
+    k = calc_kernel_matrix(x=x, c=x, h=h)
     theta = np.linalg.solve(
-        k.T.dot(k) + l * np.identity(len(k)), 
+        k.T.dot(k) + l * np.identity(len(y)), 
         k.T.dot(y[:, None]))
-    X = test_data[0]
-    K = calc_karnel_matrix(a=x, c=X, h=h)
+    K = calc_kernel_matrix(x=x, c=X, h=h)
     prediction = K.dot(theta)
-    return(prediction, theta)
+    return prediction, theta
 
 # meausure the errorness
 def get_error(pred):
@@ -74,19 +74,29 @@ def get_error(pred):
 #get general error of each model and compare them
 error_list = []
 for i in range(10):
-    prediction = solve_and_prediction(x=train_data[i][0], y=train_data[i][1], h=0.3, l=0.1)[0]
+    prediction = solve_and_prediction(x=train_data[i][0], 
+        y=train_data[i][1],X=test_data[0], h=0.3, l=0.1)[0]
     error = get_error(prediction)
     error_list.append(error)
 print("k=0.3, lambda=0.1 のときの汎化誤差 : {}".format(mean(error_list)))
 
 #visualizationのための下準備
-candidates =[[0.03, 0.00001],[0.03, 0.1],[0.03, 100],[0.3, 0.00001], [0.3, 0.1],[0.3, 100], [3, 0.00001],[3, 0.1],[3, 100]]
+h_ = [0.03, 0.3, 3] 
+l_ = [0.00001, 0.01, 100]
+candidates =[[h_[0],l_[0]],
+    [h_[1],l_[0]],
+    [h_[2],l_[0]],
+    [h_[0],l_[1]],
+    [h_[1],l_[1]],
+    [h_[2],l_[1]],
+    [h_[0],l_[2]],
+    [h_[1],l_[2]],
+    [h_[2],l_[2]]]
 x_tempo = np.linspace(0,5,100)
 y_predict = []
 for i in candidates:
-    theta = solve_and_prediction(x=train_data[0][0], y=train_data[0][1], h=i[0], l=i[1])[1]
-    K = calc_karnel_matrix(a=x, c=x_tempo, h=i[0])
-    y_tempo = K.dot(theta)
+    y_tempo = solve_and_prediction(x=train_data[2][0], 
+        y=train_data[2][1], X=x_tempo, h=i[0], l=i[1])[0]
     y_predict.append(y_tempo)
 
 x = train_data[0][0]
@@ -97,7 +107,6 @@ for i in range(9):
     plt.subplot(3,3,i+1);
     plt.title("(h, lambda) = ({}, {})".format(candidates[i][0], candidates[i][1]) )
     plt.ylim(-1,2.2);plt.scatter(x, y, c="orange", s=3);
-    plt.plot(x_tempo, y_predict[i], c="blue", linewidth=1);plt.plot(true_x, true_y, c="red")
-plt.savefig("/Users/yamadaikuya/Desktop/result.png")
+    plt.plot(x_tempo, y_predict[i], c="blue", linewidth=1)#;plt.plot(true_x, true_y, c="red")
 plt.savefig("result.png")
 plt.show()
